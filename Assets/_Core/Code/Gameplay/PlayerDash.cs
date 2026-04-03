@@ -5,6 +5,9 @@ using UnityEngine.InputSystem;
 namespace FashionThoughts {
 
     public class PlayerDash : MonoBehaviour {
+
+        const string k_dashAnim = "Dash", k_idleAnim = "Idle";
+
         public float dashDistance = 14f;
         public float dashDuration = 0.15f;
         public float dashCooldown = 1f;
@@ -12,6 +15,9 @@ namespace FashionThoughts {
         private Rigidbody rb;
         private bool isDashing = false;
         private float cooldownTimer = 0f;
+
+        [SerializeField] PlayerMovement movement;
+        [SerializeField] Animator anim;
 
         public bool IsDashing => isDashing;
 
@@ -29,12 +35,13 @@ namespace FashionThoughts {
         }
 
         IEnumerator Dash() {
+            anim.Play( k_dashAnim );
             isDashing = true;
             cooldownTimer = dashCooldown;
             Debug.Log( "Dash executado" );
 
             Vector3 startPosition = rb.position;
-            Vector3 targetPosition = startPosition + transform.forward * dashDistance;
+            Vector3 targetPosition = startPosition + (movement.LastDirection * dashDistance);
             float elapsed = 0f;
 
             rb.linearVelocity = Vector3.zero;
@@ -49,6 +56,8 @@ namespace FashionThoughts {
             rb.MovePosition( targetPosition );
             rb.linearVelocity = Vector3.zero;
             isDashing = false;
+            movement.SetDirection( movement.LastRegisteredDirection );
+            //anim.Play( k_idleAnim );
         }
     }
 }

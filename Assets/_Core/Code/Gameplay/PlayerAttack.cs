@@ -9,8 +9,8 @@ namespace FashionThoughts {
         public int damage = 10;
 
         public void OnAttack( InputValue value ) {
-            if (value.isPressed)
-                Attack();
+            //if (value.isPressed)
+            //    Attack();
         }
 
         void Attack() {
