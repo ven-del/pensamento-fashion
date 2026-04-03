@@ -405,8 +405,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 290c65b161f8b7b4db1c066665ff5e28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dashDistance: 4
-  dashDuration: 0.15
+  dashDistance: 10
+  dashDuration: 0.5
   dashCooldown: 1
   movement: {fileID: 376273616}
   anim: {fileID: 1786571843}
