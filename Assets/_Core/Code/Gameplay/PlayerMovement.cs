@@ -14,6 +14,7 @@ namespace FashionThoughts {
         [SerializeField] Transform model;
         [SerializeField] float turnSpeed = .25f;
         [SerializeField] Animator anim;
+        [SerializeField] PlayerAttack playerAttack;
 
         Camera _cam;
         Tweener _turnTween;
@@ -22,6 +23,9 @@ namespace FashionThoughts {
 
         public Vector2 LastRegisteredDirection { get; private set; }
         public Vector3 LastDirection => _lastDirection;
+
+        bool PlayerIsDashing => playerDash != null && playerDash.IsDashing;
+        bool PlayerIsAttacking => playerAttack != null && playerAttack.IsAttacking;
 
         void Start() {
             _cam = Camera.main;
@@ -35,7 +39,7 @@ namespace FashionThoughts {
 
         internal void SetDirection( Vector2 newDir ) {
             LastRegisteredDirection = newDir;
-            if (playerDash != null && playerDash.IsDashing)
+            if (PlayerIsDashing || PlayerIsAttacking)
                 return;
             var requestTurn = ( moveInput.x >= 0 && newDir.x < 0 ) || ( moveInput.x <= 0 && newDir.x > 0 );
             moveInput = newDir;

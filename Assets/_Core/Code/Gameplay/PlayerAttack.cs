@@ -1,41 +1,58 @@
+using Cysharp.Threading.Tasks;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace FashionThoughts {
 
     public class PlayerAttack : MonoBehaviour {
-        public float hitDisplayDuration = 0.3f;
-        public float attackRange = 1.5f;
-        public int damage = 10;
+
+        const string k_attackAnim = "Attack";
+
+        [SerializeField] PlayerMovement movement;
+        [SerializeField] Animator anim;
+        [SerializeField] Collider targetCollider;
+        [SerializeField] float collderAliveTime = .3f;
+
+        public bool IsAttacking { get; private set; }
+
+        Camera _cam;
+        CancellationTokenSource _tokenSource;
+
+        private void Awake() => _cam = Camera.main;
+        private void OnDisable() => DisposeToken();
 
         public void OnAttack( InputValue value ) {
-            //if (value.isPressed)
-            //    Attack();
+            if (value.isPressed)
+                Attack();
         }
 
         void Attack() {
-            Debug.Log( "Atacou!" );
-
-            Vector3 hitPos = transform.position + transform.forward * attackRange;
-
-            GameObject indicator = GameObject.CreatePrimitive( PrimitiveType.Sphere );
-            indicator.transform.position = hitPos;
-            indicator.transform.localScale = new Vector3( 1.6f, 0.05f, 0.6f );
-            Destroy( indicator.GetComponent<Collider>() );
-            Destroy( indicator, hitDisplayDuration );
-
-            Collider[] hits = Physics.OverlapSphere( hitPos, 0.8f );
-
-            // foreach (var hit in hits)
-            // {
-            //     if (hit.CompareTag("Enemy"))
-            //         Debug.Log($"Acertou {hit.name} por {damage}");
-            // } isso aqui vem depois, quando implementar inimigo pra testar
+            var mp = Mouse.current.position.ReadValue();
+            if (!Physics.Raycast( _cam.ScreenPointToRay( mp ), out var hit, 1000 )) return;
+            var dir = ( hit.point - transform.position ).normalized;
+            targetCollider.transform.LookAt( transform.position + dir, Vector3.up );
+            AttackCollider().Forget();
         }
 
-        void OnDrawGizmosSelected() {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere( transform.position + transform.forward * attackRange, 0.8f );
+        async UniTask AttackCollider() {
+            _tokenSource = new CancellationTokenSource();
+            IsAttacking = true;
+            anim.Play( k_attackAnim );
+            try {
+                targetCollider.enabled = true;
+                await UniTask.WaitForSeconds( collderAliveTime, cancellationToken: _tokenSource.Token );
+            } catch { }
+            IsAttacking = false;
+            DisposeToken();
+            targetCollider.enabled = false;
+            movement.SetDirection( movement.LastRegisteredDirection );
+        }
+
+        void DisposeToken() {
+            _tokenSource?.Cancel();
+            _tokenSource?.Dispose();
+            _tokenSource = null;
         }
     }
 }

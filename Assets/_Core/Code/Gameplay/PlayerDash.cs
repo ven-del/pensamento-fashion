@@ -6,7 +6,7 @@ namespace FashionThoughts {
 
     public class PlayerDash : MonoBehaviour {
 
-        const string k_dashAnim = "Dash", k_idleAnim = "Idle";
+        const string k_dashAnim = "Dash";
 
         public float dashDistance = 14f;
         public float dashDuration = 0.15f;
@@ -57,7 +57,6 @@ namespace FashionThoughts {
             rb.linearVelocity = Vector3.zero;
             isDashing = false;
             movement.SetDirection( movement.LastRegisteredDirection );
-            //anim.Play( k_idleAnim );
         }
     }
 }
